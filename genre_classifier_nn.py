@@ -71,6 +71,7 @@ if __name__ == "__main__":
             64, activation="relu", 
             kernel_regularizer=keras.regularizers.l2(0.001)
         ),
+        keras.layers.Dropout(0.3),
 
         # output layer
         keras.layers.Dense(10, activation="softmax")
