@@ -39,8 +39,8 @@ def plot_history(history):
     axs[0].set_title("Accuracy Eval")
 
     # Create error subplot
-    axs[1].plot(history.history["error"], label="train error")
-    axs[1].plot(history.history["val_error"], label="test error")
+    axs[1].plot(history.history["loss"], label="train error")
+    axs[1].plot(history.history["val_loss"], label="test error")
     axs[1].set_ylabel("Error")
     axs[1].legend(loc="upper right")
     axs[1].set_title("Error Eval")
@@ -71,77 +71,31 @@ def prepare_datasets(test_size, validation_size):
         X, y, test_size=test_size)
     X_train, X_validation, y_train, y_validation = train_test_split(
         X_train, y_train, test_size=validation_size)
-    
-    # Add an axis to input sets
-    X_train = X_train[..., np.newaxis]
-    X_validation = X_validation[..., np.newaxis]
-    X_test = X_test[..., np.newaxis]
 
     return X_train, X_validation, X_test, y_train, y_validation, y_test
 
 def build_model(input_shape):
-    """Generates CNN model
+    """Generates RNN-LSTM model
     
     :param input_shape (tuple): Shape of input set
-    :return model: CNN model
+    :return model: RNN-LSTM model
     """
 
     # build network topology
     model = keras.Sequential()
 
-    # 1st Conv Layer
-    model.add(keras.layers.Conv2D(
-        filters=32,
-        kernel_size=(3, 3),
-        activation="relu",
-        input_shape=input_shape
-    ))
-    model.add(keras.layers.MaxPool2D(
-        pool_size=(3, 3),
-        strides=(2,2),
-        padding="same"
-    ))
-    model.add(keras.layers.BatchNormalization())
-
-    # 2nd Conv Layer
-    model.add(keras.layers.Conv2D(
-        filters=32,
-        kernel_size=(3, 3),
-        activation="relu",
-        input_shape=input_shape
-    ))
-    model.add(keras.layers.MaxPool2D(
-        pool_size=(3, 3),
-        strides=(2,2),
-        padding="same"
-    ))
-    model.add(keras.layers.BatchNormalization())
-    # 3rd Conv Layer
-    model.add(keras.layers.Conv2D(
-        filters=32,
-        kernel_size=(2, 2),
-        activation="relu",
-        input_shape=input_shape
-    ))
-    model.add(keras.layers.MaxPool2D(
-        pool_size=(2, 2),
-        strides=(2,2),
-        padding="same"
-    ))
-    model.add(keras.layers.BatchNormalization())
-
-    # Flatten the output and feed it into dense layer
-    model.add(keras.layers.Flatten())
-    model.add(keras.layers.Dense(
-        units=64,
-        activation="relu"
-    ))
+    # 2 LSTM layers
+    model.add(keras.layers.LSTM(
+        units=64, input_shape=input_shape, return_sequences=True))
+    model.add(keras.layers.LSTM(
+        units=64))
+    
+    # Dense layer
+    model.add(keras.layers.Dense(units=64, activation="relu"))
     model.add(keras.layers.Dropout(0.3))
 
     # Output layer
-    model.add(keras.layers.Dense(
-        units=10, activation="softmax"
-    ))
+    model.add(keras.layers.Dense(units=10, activation="softmax"))
 
     return model
 
@@ -150,8 +104,8 @@ if __name__ == "__main__":
     # Create train, validation and test set
     X_train, X_val, X_test, y_train, y_val, y_test = prepare_datasets(0.25,
                                                                       0.2)
-    # Build the CNN net
-    input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
+    # Build the network
+    input_shape = (X_train.shape[1], X_train.shape[2])
     model = build_model(input_shape)
 
     # Compile the Network
@@ -159,8 +113,7 @@ if __name__ == "__main__":
     model.compile(
         optimizer=optimizer,
         loss="sparse_categorical_crossentropy",
-        metrics=["accuracy"]
-    )
+        metrics=["accuracy"])
 
     model.summary()
 
