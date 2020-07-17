@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   flask:
-    build: ./flask
+    build: ./Flask
     container_name: flask
     restart: always
     expose:
