@@ -1,0 +1,3 @@
+ uwsgi --http 0.0.0.0:5000 --wsgi-file flask_server.py --callable app --processes 1 --threads 1
+ 52.204.96.173
+ pip freeze > requirements.txt
