@@ -3,5 +3,6 @@ genres.tar.gz
 genres/
 data.json
 SPEECHWEBAPP/speech_commands_v0.01.tar.gz
-SPEECHWEBAPP/classifier/dataset/
+SPEECHWEBAPP/local/classifier/dataset/
 SPEECHWEBAPP/speech_commands_v0.01/
+MelodyGenerator/data/
