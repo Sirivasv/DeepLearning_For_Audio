@@ -4,7 +4,7 @@ import music21 as m21
 import numpy as np
 import tensorflow.keras as keras
 
-KERN_DATASET_PATH = "./data/deutschl/test/"
+KERN_DATASET_PATH = "./data/deutschl/erk/"
 SAVE_PREPROCESSING_DIR = "./data/dataset/"
 SINGLE_FILE_DATASET = "./data/file_dataset"
 SEQUENCE_LENGTH = 64
