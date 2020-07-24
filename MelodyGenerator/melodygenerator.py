@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import music21 as m21
 import tensorflow.keras as keras
 from preprocessing import SEQUENCE_LENGTH, MAPPING_PATH
 
@@ -83,10 +84,65 @@ class MelodyGenerator():
 
         return index
 
+    def save_melody(
+            self,
+            melody,
+            step_duration=0.25,
+            format="midi",
+            file_name="mel.midi"):
+        
+        # Create a music21 Stream (using default key and time signature)
+        stream = m21.stream.Stream()
+
+        # Parse all the symbols in the melody and create note/rest objects
+        # 60 _ _ _ r _ 62 _
+        start_symbol = None
+        step_counter = 1
+        melody_length = len(melody)
+
+        for i, symbol in enumerate(melody):
+
+            # handle case in which we have a note/rest
+            if (symbol != "_") or (i + 1 == melody_length):
+
+                # ensure we're dealing with note/rest beyond the first one
+                if start_symbol is not None:
+                
+                    quarter_length_duration = step_duration * step_counter
+
+                    # handle rest
+                    if start_symbol == "r":
+                        m21_event = m21.note.Rest(quarterLength=quarter_length_duration)
+                
+                    # handle note
+                    else:
+                        m21_event = m21.note.Note(
+                            int(start_symbol),
+                            quarterLength=quarter_length_duration)
+                    
+                    # Append event
+                    stream.append(m21_event)
+
+                    # reset the step counter
+                    step_counter = 1
+
+                # update start symbol
+                start_symbol = symbol
+
+            # handle case in which we have a prolongation sign "_"
+            else:
+                step_counter += 1
+
+        # Write the m21 stream to a midi file
+        stream.write(format, file_name)
+
 if __name__ == "__main__":
 
     mg = MelodyGenerator()
     seed = "55 _ _ _ 60 _ _ _ 55 _ _ _ 55 _"
-    melody = mg.generate_melody(seed, 500, SEQUENCE_LENGTH, 0.7)
+    seed2 = "67 _ 67 _ 67 _ _ 65 64 _ 64 _ _"
+    seed3 = "67 _ _ _ _ _ 65 _ 64 _ 62 _ 60 _ _ _"
+    melody = mg.generate_melody(seed2, 500, SEQUENCE_LENGTH, 0.3)
     print(melody)
     print(len(melody))
+    mg.save_melody(melody)
